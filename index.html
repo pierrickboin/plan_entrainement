@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Plan d'Entraînement Running V17.3</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- EmailJS SDK pour l'envoi API transparent -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        /* Arrière-plan sportif moderne (Piste d'athlétisme / Ocre-Rouge subtil) */
+        body {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(225, 29, 72, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
+                linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            background-attachment: fixed;
+        }
+
+        /* Style visuel renforcé pour les champs obligatoires */
+        .required-field {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+        }
+
+        /* Effet verre semi-transparent (Glassmorphism) pour les cartes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; font-size: 10pt; color: black !important; }
+            .glass-card { background: white !important; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans min-h-screen pb-12">
+
+    <!-- En-tête de l'application avec Médaille discrète en filigrane -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-4 px-6 shadow-lg mb-8 no-print sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3 relative">
+                <!-- Icône Médaille discrète en arrière-plan du logo -->
+                <div class="absolute -left-2 -top-2 text-amber-500/20 text-4xl pointer-events-none">
+                    <i class="fa-solid fa-medal"></i>
+                </div>
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-3 rounded-2xl shadow-md relative z-10">
+                    <i class="fa-solid fa-person-running text-2xl"></i>
+                </div>
+                <div class="relative z-10">
+                    <h1 class="text-xl font-bold text-white tracking-wide leading-tight flex items-center gap-2">
+                        Générateur de Plan d'Entraînement Running 
+                        <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">v17.3</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Modèles physiologiques STAPS & FFA — Suivi & Performance</p>
+                </div>
+            </div>
+            <div id="modeIndicator" class="text-xs px-3 py-1.5 rounded-full border font-mono"></div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 space-y-6">
+
+        <!-- Banner Information / Mégaphone -->
+        <div class="bg-amber-900/30 border border-amber-500/30 rounded-2xl p-4 text-xs text-amber-200 backdrop-blur-md no-print">
+            <div class="flex items-start gap-2.5">
+                <i class="fa-solid fa-bullhorn text-amber-400 mt-0.5 text-base"></i>
+                <div class="space-y-1">
+                    <strong>Information du Coach :</strong> 
+                    Ce plan a été généré par IA à partir de mon modèle de connaissances, compétences et expérience. Le plan obtenu est à titre indicatif pour vous aider à structurer votre pratique en vue d'un objectif. 
+                    <br><em>Petit rappel entre coureurs :</em> si vous voulez du vrai sur-mesure calibré au millimètre pour vos gambettes et sans risque de finir en PLS sur le bord de la piste, la case coach en chair et en os reste vivement conseillée ! 😉 Écoutez vos sensations au quotidien.
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification dynamique de statut -->
+        <div id="statusNotification" class="hidden rounded-2xl p-4 text-sm font-medium transition-all no-print shadow-md"></div>
+
+        <!-- Formulaire principal -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-xl no-print">
+            <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2.5">
+                <span class="bg-blue-600 text-white w-7 h-7 rounded-xl flex items-center justify-center text-xs shadow-sm">1</span> 
+                Profil & Objectif de Course
+            </h2>
+
+            <form id="planForm" onsubmit="handleGenerateAndSend(event)" class="space-y-6">
+                <!-- Section Identité / Contact -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Prénom <span class="text-red-500">*</span></label>
+                        <input type="text" id="prenom" required placeholder="ex: Pierrick" class="w-full text-sm p-3 rounded-xl border required-field focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nom <span class="text-red-500">*</span></label>
+                        <input type="text" id="nom" required placeholder="ex: Boin" class="w-full text-sm p-3 rounded-xl border required-field focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Email <span class="text-red-500">*</span></label>
+                        <input type="email" id="email" required placeholder="ex: coureur@exemple.fr" class="w-full text-sm p-3 rounded-xl border required-field focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Sexe</label>
+                        <select id="sexe" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
+                            <option value="Homme">Homme</option>
+                            <option value="Femme">Femme</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section Données Physiologiques -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">FC Max (bpm)</label>
+                        <input type="number" id="fcMax" value="185" min="100" max="220" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">FC Repos (bpm)</label>
+                        <input type="number" id="fcRepos" value="50" min="30" max="100" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Niveau</label>
+                        <select id="niveau" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
+                            <option value="Débutant">Débutant</option>
+                            <option value="Intermédiaire" selected>Intermédiaire</option>
+                            <option value="Avancé">Avancé</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section Course & Paramètres -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nom de l'épreuve</label>
+                        <input type="text" id="nomEpreuve" value="Semi-Marathon" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Distance <span class="text-red-500">*</span></label>
+                        <select id="distance" required class="w-full text-sm p-3 rounded-xl border required-field bg-white">
+                            <option value="5k">5 km</option>
+                            <option value="10k">10 km</option>
+                            <option value="Semi-Marathon" selected>Semi-Marathon</option>
+                            <option value="Marathon">Marathon</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Date de la course <span class="text-red-500">*</span></label>
+                        <input type="date" id="dateCourse" required class="w-full text-sm p-3 rounded-xl border required-field bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Durée du plan</label>
+                        <select id="dureePlan" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
+                            <option value="6">6 semaines</option>
+                            <option value="8">8 semaines</option>
+                            <option value="10">10 semaines</option>
+                            <option value="12" selected>12 semaines</option>
+                            <option value="14">14 semaines</option>
+                            <option value="16">16 semaines</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section Chrono & Choix des jours -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Objectif Chrono (HH:MM:SS) <span class="text-red-500">*</span></label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="chronoHH" value="01" min="0" max="10" placeholder="HH" class="w-16 text-center text-sm p-3 rounded-xl border required-field bg-white">
+                            <span>:</span>
+                            <input type="number" id="chronoMM" value="35" min="0" max="59" placeholder="MM" class="w-16 text-center text-sm p-3 rounded-xl border required-field bg-white">
+                            <span>:</span>
+                            <input type="number" id="chronoSS" value="00" min="0" max="59" placeholder="SS" class="w-16 text-center text-sm p-3 rounded-xl border required-field bg-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-2">Jours d'entraînement souhaités <span class="text-red-500">*</span> (Sortie Longue sur le dernier jour coché)</label>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
+                                <input type="checkbox" name="jour" value="0" class="rounded text-blue-600"> Lun
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
+                                <input type="checkbox" name="jour" value="1" checked class="rounded text-blue-600"> Mar
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
+                                <input type="checkbox" name="jour" value="2" checked class="rounded text-blue-600"> Mer
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
+                                <input type="checkbox" name="jour" value="3" checked class="rounded text-blue-600"> Jeu
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
+                                <input type="checkbox" name="jour" value="4" class="rounded text-blue-600"> Ven
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
+                                <input type="checkbox" name="jour" value="5" class="rounded text-blue-600"> Sam
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
+                                <input type="checkbox" name="jour" value="6" checked class="rounded text-blue-600"> Dim
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'Action -->
+                <div class="flex flex-wrap gap-4 pt-4 border-t border-slate-100">
+                    <button type="submit" id="btnGenerer" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-6 rounded-2xl shadow-lg transition flex items-center gap-2.5">
+                        <i class="fa-solid fa-bolt"></i> Générer mon plan
+                    </button>
+                    <button type="button" onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3.5 px-6 rounded-2xl shadow-lg transition flex items-center gap-2.5 no-print">
+                        <i class="fa-solid fa-print"></i> Export PDF
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Conteneur d'affichage du plan d'entraînement généré -->
+        <div id="planContainer"></div>
+
+    </main>
+
+    <script>
+        /* ==========================================================================
+           1. CONFIGURATION & MODE TEST (ÉCONOMIE DU QUOTA EMAIL)
+           ========================================================================== */
+
+        const TEST_MODE = true; // Mode test activé par défaut (0 email consommé)
+
+        const ADRESSE_COPIE_CACHEE = "pierrickb@free.fr";
+        const EMAILJS_PUBLIC_KEY = "6dQSD0HCYVVX_fxWE";
+        const EMAILJS_SERVICE_ID = "service_rrhar6g";
+        const EMAILJS_TEMPLATE_ID = "template_o0zypg7";
+
+        if (EMAILJS_PUBLIC_KEY) {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const indicator = document.getElementById('modeIndicator');
+            if (TEST_MODE) {
+                indicator.className = "text-xs px-3 py-1.5 rounded-full border font-mono bg-amber-500/20 text-amber-300 border-amber-500/30";
+                indicator.innerHTML = `<i class="fa-solid fa-flask mr-1"></i> Mode Test (Email désactivé)`;
+            } else {
+                indicator.className = "text-xs px-3 py-1.5 rounded-full border font-mono bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+                indicator.innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> Mode Production (Email actif)`;
+            }
+
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + (12 * 7));
+            document.getElementById('dateCourse').value = defaultDate.toISOString().split('T')[0];
+        });
+
+        function formatDuration(mins) {
+            if (mins < 60) return `${mins} min`;
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return m > 0 ? `${h}h${m < 10 ? '0' : ''}${m}` : `${h}h`;
+        }
+
+        function formatPace(secPerKm) {
+            const m = Math.floor(secPerKm / 60);
+            const s = Math.round(secPerKm % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s} /km`;
+        }
+
+        /* ==========================================================================
+           2. MOTEUR DE GÉNÉRATION ANTI-MONOTONIE (V17.3)
+           ========================================================================== */
+
+        async function handleGenerateAndSend(e) {
+            if (e) e.preventDefault();
+
+            const prenom = document.getElementById('prenom').value || "Athlète";
+            const nom = document.getElementById('nom').value || "";
+            const email = document.getElementById('email').value;
+            const nomEpreuve = document.getElementById('nomEpreuve').value || "Course";
+            const fcMax = parseInt(document.getElementById('fcMax').value) || 185;
+            const fcRepos = parseInt(document.getElementById('fcRepos').value) || 50;
+            const distance = document.getElementById('distance').value;
+            const dureePlan = parseInt(document.getElementById('dureePlan').value) || 12;
+            const dateCourseStr = document.getElementById('dateCourse').value;
+
+            const hh = parseInt(document.getElementById('chronoHH').value) || 0;
+            const mm = parseInt(document.getElementById('chronoMM').value) || 0;
+            const ss = parseInt(document.getElementById('chronoSS').value) || 0;
+            const totalSecondsChrono = (hh * 3600) + (mm * 60) + ss;
+
+            const joursCoches = Array.from(document.querySelectorAll('input[name="jour"]:checked')).map(el => parseInt(el.value));
+            if (joursCoches.length < 2) {
+                alert("Veuillez sélectionner au moins 2 jours d'entraînement par semaine.");
+                return false;
+            }
+
+            const jourSortieLongue = joursCoches[joursCoches.length - 1];
+
+            let distKmRef = 21.1;
+            if (distance === "5k") distKmRef = 5.0;
+            else if (distance === "10k") distKmRef = 10.0;
+            else if (distance === "Marathon") distKmRef = 42.195;
+
+            const allureSpécifiqueSec = totalSecondsChrono > 0 ? (totalSecondsChrono / distKmRef) : 300;
+
+            const fcReserve = fcMax - fcRepos;
+            const fcEF_Min = Math.round(fcRepos + (fcReserve * 0.60));
+            const fcEF_Max = Math.round(fcRepos + (fcReserve * 0.75));
+            const fcSeuil_Min = Math.round(fcRepos + (fcReserve * 0.80));
+            const fcSeuil_Max = Math.round(fcRepos + (fcReserve * 0.90));
+
+            const allureEF_Min = formatPace(allureSpécifiqueSec * 1.25);
+            const allureEF_Max = formatPace(allureSpécifiqueSec * 1.15);
+            const allureAS = formatPace(allureSpécifiqueSec);
+
+            const dateCourse = new Date(dateCourseStr);
+            const jourNoms = ["LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"];
+
+            let totalKmPlan = 0;
+            const planContainer = document.getElementById('planContainer');
+
+            let html = `
+                <div id="pdfContent" class="space-y-6">
+                    <!-- Fiche Récapitulative du Profil -->
+                    <div class="glass-card rounded-3xl p-6 border border-slate-200/80 shadow-xl">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 mb-4 gap-2">
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-900">Plan d'Entraînement : ${prenom} ${nom}</h2>
+                                <p class="text-xs text-slate-500">Objectif ${distance} (${nomEpreuve}) le ${dateCourse.toLocaleDateString('fr-FR')} (${dureePlan} semaines)</p>
+                            </div>
+                            <div class="bg-blue-50 text-blue-800 text-xs font-semibold px-3.5 py-1.5 rounded-xl border border-blue-100 shadow-sm">
+                                Chrono visé : ${hh > 0 ? hh + 'h' : ''}${mm < 10 ? '0' : ''}${mm}m${ss < 10 ? '0' : ''}${ss}s
+                            </div>
+                        </div>
+
+                        <!-- Tableau des plages physiologiques Karvonen -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+                                <span class="text-slate-500 block mb-1">Endurance Fondamentale (EF)</span>
+                                <strong class="text-slate-800">${fcEF_Min} - ${fcEF_Max} bpm</strong>
+                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">${allureEF_Min} à ${allureEF_Max}</span>
+                            </div>
+                            <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+                                <span class="text-slate-500 block mb-1">Allure Spécifique (${distance})</span>
+                                <strong class="text-slate-800">${fcSeuil_Min} - ${fcSeuil_Max} bpm</strong>
+                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">${allureAS}</span>
+                            </div>
+                            <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+                                <span class="text-slate-500 block mb-1">FC Repos / FC Max</span>
+                                <strong class="text-slate-800">${fcRepos} / ${fcMax} bpm</strong>
+                            </div>
+                            <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+                                <span class="text-slate-500 block mb-1">Fréquence Hebdo</span>
+                                <strong class="text-slate-800">${joursCoches.length} séances / semaine</strong>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            // Bibliothèques de séances hautement variées (VMA, Seuil, Footing, Fartlek)
+            const listeVMA = [
+                { type: "vma", titre: "VMA Courte (30/30)", desc: "20 min EF + 2 séries de (8x 30s effort / 30s souplesse) + 10 min RAC.", dist: "8.5 km", fc: `${fcSeuil_Min}-${fcMax} bpm`, allure: "Allure VMA" },
+                { type: "vma", titre: "VMA Courte (300m)", desc: "20 min EF + 8x 300m à 95% VMA (récup. 100m trot) + 10 min RAC.", dist: "9.0 km", fc: `${fcSeuil_Min}-${fcMax} bpm`, allure: "Allure VMA" },
+                { type: "vma", titre: "VMA Courte (400m)", desc: "20 min EF + 6x 400m à 90-95% VMA (récup. 1 min 15s) + 10 min RAC.", dist: "9.5 km", fc: `${fcSeuil_Min}-${fcMax} bpm`, allure: "Allure VMA" }
+            ];
+
+            const listeSeuil = [
+                { type: "seuil", titre: "Travail au Seuil (Allure Spécifique)", desc: "20 min EF + 3x 8 min à Allure Spécifique (R=2 min) + RAC.", dist: "10.0 km", fc: `${fcSeuil_Min}-${fcSeuil_Max} bpm`, allure: allureAS },
+                { type: "seuil", titre: "Seuil Long (1000m)", desc: "20 min EF + 4x 1000m au seuil (R=1 min 30s) + 10 min RAC.", dist: "10.5 km", fc: `${fcSeuil_Min}-${fcSeuil_Max} bpm`, allure: "Seuil" },
+                { type: "seuil", titre: "Blocs au Seuil (12 min)", desc: "20 min EF + 2x 12 min au seuil (R=2 min 30s) + 10 min RAC.", dist: "11.0 km", fc: `${fcSeuil_Min}-${fcSeuil_Max} bpm`, allure: "Seuil" }
+            ];
+
+            const listeFooting = [
+                { type: "footing", titre: "Footing EF + Lignes droites", desc: "45 min en EF pure + 5x100m d'accélérations progressives.", dist: "8.0 km", fc: `${fcEF_Min}-${fcEF_Max} bpm`, allure: allureEF_Min },
+                { type: "footing", titre: "Footing Fartlek Varié", desc: "45 min alternant 2 min dynamiques / 2 min souples en aisance.", dist: "8.5 km", fc: `${fcEF_Min}-${fcSeuil_Min} bpm`, allure: "Variée" },
+                { type: "footing", titre: "Footing Actif de Récupération", desc: "50 min en endurance fondamentale pure, souple et relâchée.", dist: "9.0 km", fc: `${fcEF_Min}-${fcEF_Max} bpm`, allure: allureEF_Max }
+            ];
+
+            for (let s = 1; s <= dureePlan; s++) {
+                const isAffutage = s >= dureePlan - 1;
+                const phase = isAffutage ? "Affûtage Final" : `Développement (Semaine ${s})`;
+                
+                let volumeHebdoSemaine = isAffutage ? 28 : Math.round(32 + (s * 1.2));
+                totalKmPlan += volumeHebdoSemaine;
+
+                let targetSLKm = isAffutage ? 10 : Math.min(20, 12 + Math.floor((s - 1) * 0.7));
+                let targetSLMins = targetSLKm * 6;
+
+                const semainesRestantes = dureePlan - s;
+                const mondayDate = new Date(dateCourse);
+                mondayDate.setDate(dateCourse.getDate() - (semainesRestantes * 7) - (dateCourse.getDay() === 0 ? 6 : dateCourse.getDay() - 1));
+
+                html += `
+                    <div class="glass-card rounded-3xl p-6 border border-slate-200/80 shadow-xl ${s % 3 === 0 ? 'page-break' : ''}">
+                        <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+                            <h3 class="font-bold text-slate-800">Semaine ${s} 
+                                <span class="text-xs px-2.5 py-0.5 rounded-full ml-2 ${isAffutage ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">${phase}</span>
+                            </h3>
+                            <div class="text-xs text-slate-500 font-semibold">
+                                ${joursCoches.length} séances | Volume : ~${volumeHebdoSemaine} km/semaine
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-${joursCoches.length} gap-4">
+                `;
+
+                // Sélection intelligente et non-monotone des séances pour cette semaine
+                // On s'assure qu'il n'y a jamais deux fois la même intensité (pas de double VMA)
+                let seance1, seance2, seance3;
+                if (s % 2 === 1) {
+                    seance1 = listeVMA[(s % listeVMA.length)];
+                    seance2 = listeSeuil[(s % listeSeuil.length)];
+                    seance3 = listeFooting[(s % listeFooting.length)];
+                } else {
+                    seance1 = listeSeuil[(s % listeSeuil.length)];
+                    seance2 = listeVMA[(s % listeVMA.length)];
+                    seance3 = listeFooting[(s % listeFooting.length)];
+                }
+
+                if (isAffutage) {
+                    seance1 = listeFooting[0];
+                    seance2 = listeFooting[1];
+                }
+
+                joursCoches.forEach((jIndex, idx) => {
+                    const dateSeance = new Date(mondayDate);
+                    dateSeance.setDate(mondayDate.getDate() + jIndex);
+                    const dateStr = `${jourNoms[jIndex]} ${dateSeance.getDate()}/${dateSeance.getMonth() + 1}`;
+                    
+                    const isSL = (jIndex === jourSortieLongue);
+                    const isCompet = (s === dureePlan && isSL);
+
+                    if (isCompet) {
+                        html += `
+                            <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-white rounded-2xl p-4 shadow-md flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-bold text-xs">${dateStr}</span>
+                                        <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">JOUR J 🏆</span>
+                                    </div>
+                                    <h4 class="font-bold text-sm mb-1">${distance.toUpperCase()}</h4>
+                                    <p class="text-xs opacity-95 mb-2">${nomEpreuve}</p>
+                                    <div class="text-xs font-mono bg-black/10 p-2.5 rounded-xl border border-white/20">
+                                        ⏱️ Objectif : ${hh > 0 ? hh + 'h' : ''}${mm}m${ss}s<br>
+                                        🎯 Allure : ${allureAS}
+                                    </div>
+                                </div>
+                                <div class="text-[10px] opacity-90 pt-2 border-t border-white/20 mt-2">
+                                    Hydratez-vous bien et gérez votre allure dès le premier kilomètre !
+                                </div>
+                            </div>
+                        `;
+                    } else if (isSL) {
+                        html += `
+                            <div class="bg-blue-50/90 border border-blue-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-bold text-xs text-blue-900">${dateStr}</span>
+                                        <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-semibold">Sortie Longue (SL)</span>
+                                    </div>
+                                    <p class="text-xs text-slate-700 font-medium mb-2">
+                                        Sortie Longue progressive (~${targetSLKm} km — ${formatDuration(targetSLMins)}) : EF pure avec rappels Allure Spécifique.
+                                    </p>
+                                    <div class="space-y-1 text-[11px] text-slate-600 font-mono bg-white/80 p-2.5 rounded-xl border border-blue-100">
+                                        <div>❤️ FC : ${fcEF_Min} - ${fcSeuil_Min} bpm</div>
+                                        <div>⏱️ Allure : ${allureEF_Max} - ${allureAS}</div>
+                                        <div>📏 Distance : ~${targetSLKm} km</div>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] text-slate-500 pt-2 border-t border-blue-100 mt-2">
+                                    💡 <em>Développement de l'endurance fondamentale et résistance tendineuse.</em>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Assigne une séance différente selon la position dans la semaine
+                        let sCible = seance1;
+                        if (idx === 1) sCible = seance2;
+                        if (idx === 2) sCible = seance3;
+
+                        html += `
+                            <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-bold text-xs text-slate-700">${dateStr}</span>
+                                        <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">Séance spécifique</span>
+                                    </div>
+                                    <p class="text-xs text-slate-700 font-medium mb-2"><strong>${sCible.titre}</strong> : ${sCible.desc}</p>
+                                    <div class="space-y-1 text-[11px] text-slate-600 font-mono bg-white p-2.5 rounded-xl border border-slate-100">
+                                        <div>❤️ FC : ${sCible.fc}</div>
+                                        <div>⏱️ Allure : ${sCible.allure}</div>
+                                        <div>📏 Volume : ~${sCible.dist}</div>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] text-slate-400 pt-2 border-t border-slate-200 mt-2">
+                                    💡 <em>Optimisation du profil aérobie et de la foulée.</em>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += `</div></div>`;
+            }
+
+            html += `
+                <div class="glass-card rounded-3xl p-6 border border-slate-200/80 shadow-xl text-xs">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3">📊 Bilan Global de la Préparation</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-600">
+                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Volume total planifié : <strong>~${totalKmPlan} km</strong></div>
+                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Nombre total de séances : <strong>${dureePlan * joursCoches.length} séances</strong></div>
+                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Épreuve visée : <strong>${distance} (${nomEpreuve}) le ${dateCourse.toLocaleDateString('fr-FR')}</strong></div>
+                    </div>
+                </div>
+            </div>`;
+
+            planContainer.innerHTML = html;
+
+            const btnGenerer = document.getElementById('btnGenerer');
+            const notif = document.getElementById('statusNotification');
+
+            btnGenerer.disabled = true;
+            btnGenerer.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Génération en cours...`;
+            notif.className = "bg-blue-900/30 border border-blue-500/30 text-blue-200 backdrop-blur-md rounded-2xl p-4 text-sm font-medium mb-4 no-print";
+            notif.innerHTML = "⏳ Génération de votre plan d'entraînement personnalisé...";
+            notif.classList.remove('hidden');
+
+            try {
+                if (!TEST_MODE) {
+                    const templateParams = {
+                        to_name: `${prenom} ${nom}`,
+                        email: email,
+                        bcc_email: ADRESSE_COPIE_CACHEE,
+                        distance: distance,
+                        nom_epreuve: nomEpreuve,
+                        nb_semaines: dureePlan
+                    };
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                }
+
+                notif.className = "bg-emerald-900/30 border border-emerald-500/30 text-emerald-200 backdrop-blur-md rounded-2xl p-4 text-sm font-medium mb-4 no-print shadow-lg";
+                if (TEST_MODE) {
+                    notif.innerHTML = `✅ <strong>Succès (Mode Test) !</strong> Votre plan pour le <strong>${nomEpreuve}</strong> (${distance}, ${dureePlan} semaines) a été généré avec une variété parfaite. <em>Aucun e-mail n'a été envoyé (TEST_MODE = true).</em>`;
+                } else {
+                    notif.innerHTML = `✅ <strong>Succès !</strong> Votre plan pour le <strong>${nomEpreuve}</strong> (${distance}, ${dureePlan} semaines) a été généré et transmis à <strong>${email}</strong>.`;
+                }
+
+            } catch (error) {
+                console.error("Erreur d'envoi API :", error);
+                notif.className = "bg-red-900/30 border border-red-500/30 text-red-200 backdrop-blur-md rounded-2xl p-4 text-sm font-medium mb-4 no-print";
+                notif.innerHTML = `❌ Plan généré à l'écran, mais l'envoi de l'e-mail a échoué.`;
+            } finally {
+                btnGenerer.disabled = false;
+                btnGenerer.innerHTML = `<i class="fa-solid fa-bolt"></i> Générer mon plan`;
+            }
+
+            return false;
+        }
+    </script>
+</body>
+</html>
