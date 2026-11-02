@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Plan d'Entraînement Running V17.3</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <title>Générateur de Plan d'Entraînement Running — V18</title>
+    <meta name="description" content="Expérimentation ludique : génère un plan d'entraînement running (5 km, 10 km, semi, marathon) pour structurer sa préparation. Plan indicatif, non individualisé.[cite: 28]">
+    <meta property="og:title" content="Générateur de plan d'entraînement running (expérimental)[cite: 28]">
+    <meta property="og:description" content="Un plan indicatif en quelques clics : 5 km, 10 km, semi ou marathon. Projet test généré avec l'aide d'une IA.[cite: 28]">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%83%3C/text%3E%3C/svg%3E">
+    <!-- Tailwind CSS CDN pour le style graphique moderne[cite: 28] -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <!-- FontAwesome Icons pour les icônes visuelles[cite: 28] -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- EmailJS SDK pour l'envoi API transparent -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- EmailJS SDK pour l'envoi transparent d'e-mails via API[cite: 28] -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3.12.1/dist/email.min.js"></script>
     
     <style>
-        /* Arrière-plan sportif moderne (Piste d'athlétisme / Ocre-Rouge subtil) */
+        /* Dégradé d'arrière-plan thématique piste d'athlétisme / nuit[cite: 28] */
         body {
             background-color: #0f172a;
             background-image: 
@@ -22,33 +28,38 @@
             background-attachment: fixed;
         }
 
-        /* Style visuel renforcé pour les champs obligatoires */
+        /* Mise en valeur visuelle des champs obligatoires du formulaire[cite: 28] */
         .required-field {
             border-color: #3b82f6 !important;
             background-color: #eff6ff !important;
         }
 
-        /* Effet verre semi-transparent (Glassmorphism) pour les cartes */
+        /* Style Glassmorphism (Effet de verre semi-transparent)[cite: 28] */
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
         }
 
+        /* Styles d'impression et d'exportation PDF native[cite: 28] */
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; font-size: 10pt; color: black !important; }
             .glass-card { background: white !important; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
             .page-break { page-break-before: always; }
+            .print-only { display: block !important; }
+            .print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 8pt; color: #475569; border-top: 1px solid #cbd5e1; padding-top: 3px; background: white; }
+            .glass-card { break-inside: avoid; }
         }
+        .print-only, .print-footer { display: none; }
     </style>
 </head>
 <body class="text-slate-800 font-sans min-h-screen pb-12">
 
-    <!-- En-tête de l'application avec Médaille discrète en filigrane -->
+    <!-- EN-TÊTE PRINCIPAL DE L'APPLICATION[cite: 28] -->
     <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 py-4 px-6 shadow-lg mb-8 no-print sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3 relative">
-                <!-- Icône Médaille discrète en arrière-plan du logo -->
+                <!-- Filigrane Médaille discrète[cite: 28] -->
                 <div class="absolute -left-2 -top-2 text-amber-500/20 text-4xl pointer-events-none">
                     <i class="fa-solid fa-medal"></i>
                 </div>
@@ -56,11 +67,10 @@
                     <i class="fa-solid fa-person-running text-2xl"></i>
                 </div>
                 <div class="relative z-10">
-                    <h1 class="text-xl font-bold text-white tracking-wide leading-tight flex items-center gap-2">
-                        Générateur de Plan d'Entraînement Running 
-                        <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">v17.3</span>
+                    <h1 class="text-xl font-bold text-white tracking-wide leading-tight">
+                        Générateur de Plan d'Entraînement Running
                     </h1>
-                    <p class="text-xs text-slate-400">Modèles physiologiques STAPS & FFA — Suivi & Performance</p>
+                    <p class="text-xs text-slate-400">Expérimentation ludique pour structurer sa préparation[cite: 28]</p>
                 </div>
             </div>
             <div id="modeIndicator" class="text-xs px-3 py-1.5 rounded-full border font-mono"></div>
@@ -69,22 +79,22 @@
 
     <main class="max-w-6xl mx-auto px-4 space-y-6">
 
-        <!-- Banner Information / Mégaphone -->
+        <!-- BANNER AVERTISSEMENT / COACH HUMORISTIQUE[cite: 28] -->
         <div class="bg-amber-900/30 border border-amber-500/30 rounded-2xl p-4 text-xs text-amber-200 backdrop-blur-md no-print">
             <div class="flex items-start gap-2.5">
                 <i class="fa-solid fa-bullhorn text-amber-400 mt-0.5 text-base"></i>
                 <div class="space-y-1">
-                    <strong>Information du Coach :</strong> 
-                    Ce plan a été généré par IA à partir de mon modèle de connaissances, compétences et expérience. Le plan obtenu est à titre indicatif pour vous aider à structurer votre pratique en vue d'un objectif. 
-                    <br><em>Petit rappel entre coureurs :</em> si vous voulez du vrai sur-mesure calibré au millimètre pour vos gambettes et sans risque de finir en PLS sur le bord de la piste, la case coach en chair et en os reste vivement conseillée ! 😉 Écoutez vos sensations au quotidien.
+                    <strong>Petit mot de l'auteur :</strong> 
+                    Ce site est une expérimentation générée avec l'aide d'une IA : le plan est <strong>indicatif, non individualisé</strong> et peut contenir des erreurs. Il sert de cadre pour s'organiser et comprendre les grands principes (endurance, fractionné, sortie longue, récupération), pas de prescription. Allures et fréquences cardiaques sont des estimations[cite: 28].
+                    <br><em>Petit rappel entre coureurs :</em> si vous voulez du vrai sur-mesure calibré au millimètre pour vos gambettes et sans risque de finir en PLS sur le bord de la piste, la case coach en chair et en os reste vivement conseillée ! 😉 Écoutez vos sensations au quotidien[cite: 28].
                 </div>
             </div>
         </div>
 
-        <!-- Notification dynamique de statut -->
+        <!-- ZONE DE NOTIFICATION DYNAMIQUE[cite: 28] -->
         <div id="statusNotification" class="hidden rounded-2xl p-4 text-sm font-medium transition-all no-print shadow-md"></div>
 
-        <!-- Formulaire principal -->
+        <!-- FORMULAIRE Saisie des données du coureur[cite: 28] -->
         <section class="glass-card rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-xl no-print">
             <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2.5">
                 <span class="bg-blue-600 text-white w-7 h-7 rounded-xl flex items-center justify-center text-xs shadow-sm">1</span> 
@@ -92,7 +102,8 @@
             </h2>
 
             <form id="planForm" onsubmit="handleGenerateAndSend(event)" class="space-y-6">
-                <!-- Section Identité / Contact -->
+                
+                <!-- 1. IDENTITÉ DU COUREUR[cite: 28] -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Prénom <span class="text-red-500">*</span></label>
@@ -103,8 +114,8 @@
                         <input type="text" id="nom" required placeholder="ex: Boin" class="w-full text-sm p-3 rounded-xl border required-field focus:ring-2 focus:ring-blue-500 bg-white">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Email <span class="text-red-500">*</span></label>
-                        <input type="email" id="email" required placeholder="ex: coureur@exemple.fr" class="w-full text-sm p-3 rounded-xl border required-field focus:ring-2 focus:ring-blue-500 bg-white">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Email <span class="text-slate-400 font-normal">(facultatif)</span></label>
+                        <input type="email" id="email" autocomplete="email" placeholder="ex: coureur@exemple.fr" class="w-full text-sm p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Sexe</label>
@@ -115,7 +126,7 @@
                     </div>
                 </div>
 
-                <!-- Section Données Physiologiques -->
+                <!-- 2. DONNÉES PHYSIOLOGIQUES ET NIVEAU[cite: 28] -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">FC Max (bpm)</label>
@@ -126,28 +137,28 @@
                         <input type="number" id="fcRepos" value="50" min="30" max="100" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Niveau</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Niveau du coureur <span class="text-red-500">*</span></label>
                         <select id="niveau" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
                             <option value="Débutant">Débutant</option>
                             <option value="Intermédiaire" selected>Intermédiaire</option>
-                            <option value="Avancé">Avancé</option>
+                            <option value="Avancé">Avancé / Expert</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Section Course & Paramètres -->
+                <!-- 3. PARAMÈTRES DE LA COURSE VISÉE[cite: 28] -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Nom de l'épreuve</label>
-                        <input type="text" id="nomEpreuve" value="Semi-Marathon" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
+                        <input type="text" id="nomEpreuve" value="Marathon" class="w-full text-sm p-3 rounded-xl border border-slate-300 bg-white">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Distance <span class="text-red-500">*</span></label>
                         <select id="distance" required class="w-full text-sm p-3 rounded-xl border required-field bg-white">
                             <option value="5k">5 km</option>
                             <option value="10k">10 km</option>
-                            <option value="Semi-Marathon" selected>Semi-Marathon</option>
-                            <option value="Marathon">Marathon</option>
+                            <option value="Semi-Marathon">Semi-Marathon</option>
+                            <option value="Marathon" selected>Marathon</option>
                         </select>
                     </div>
                     <div>
@@ -167,12 +178,12 @@
                     </div>
                 </div>
 
-                <!-- Section Chrono & Choix des jours -->
+                <!-- 4. CHRONO & SÉLECTION DES JOURS D'ENTRAÎNEMENT[cite: 28] -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Objectif Chrono (HH:MM:SS) <span class="text-red-500">*</span></label>
                         <div class="flex items-center gap-2">
-                            <input type="number" id="chronoHH" value="01" min="0" max="10" placeholder="HH" class="w-16 text-center text-sm p-3 rounded-xl border required-field bg-white">
+                            <input type="number" id="chronoHH" value="03" min="0" max="10" placeholder="HH" class="w-16 text-center text-sm p-3 rounded-xl border required-field bg-white">
                             <span>:</span>
                             <input type="number" id="chronoMM" value="35" min="0" max="59" placeholder="MM" class="w-16 text-center text-sm p-3 rounded-xl border required-field bg-white">
                             <span>:</span>
@@ -180,7 +191,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-2">Jours d'entraînement souhaités <span class="text-red-500">*</span> (Sortie Longue sur le dernier jour coché)</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-2">Jours d'entraînement souhaités <span class="text-red-500">*</span> (2 à 5 jours — Sortie Longue sur le dernier jour coché)</label>
                         <div class="flex flex-wrap gap-2">
                             <label class="inline-flex items-center gap-1.5 text-xs bg-slate-100 p-2.5 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200">
                                 <input type="checkbox" name="jour" value="0" class="rounded text-blue-600"> Lun
@@ -207,7 +218,17 @@
                     </div>
                 </div>
 
-                <!-- Boutons d'Action -->
+                <!-- E-MAIL FACULTATIF : accord explicite[cite: 28] -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-600 space-y-2">
+                    <label class="flex items-start gap-2 cursor-pointer">
+                        <input type="checkbox" id="consentEmail" class="mt-0.5 rounded text-blue-600">
+                        <span><strong>Je souhaite recevoir le récapitulatif de mon plan par e-mail.</strong> Mon adresse e-mail, mon prénom et nom, la course visée et le récapitulatif sont transmis via EmailJS, et <strong>une copie est envoyée à l'auteur du site</strong> pour suivre l'expérimentation. Aucune autre utilisation, pas de revente. Suppression sur simple demande à l'auteur[cite: 28].</span>
+                    </label>
+                    <p class="text-slate-500">Sans e-mail ni case cochée, le plan s'affiche simplement à l'écran et rien n'est envoyé[cite: 28].</p>
+                    <input type="text" id="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+                </div>
+
+                <!-- BOUTONS D'ACTION[cite: 28] -->
                 <div class="flex flex-wrap gap-4 pt-4 border-t border-slate-100">
                     <button type="submit" id="btnGenerer" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-6 rounded-2xl shadow-lg transition flex items-center gap-2.5">
                         <i class="fa-solid fa-bolt"></i> Générer mon plan
@@ -219,24 +240,37 @@
             </form>
         </section>
 
-        <!-- Conteneur d'affichage du plan d'entraînement généré -->
+        <!-- CONTENEUR D'AFFICHAGE DU PLAN RÉSULTAT[cite: 28] -->
         <div id="planContainer"></div>
 
     </main>
 
+    <footer class="max-w-6xl mx-auto px-4 mt-8 text-center text-[11px] text-slate-400 no-print">
+        Projet expérimental V18 — généré avec l'aide d'une IA, peut contenir des erreurs. Ne remplace ni un coach ni un avis médical[cite: 28].
+        · <a class="underline hover:text-slate-200" href="https://github.com/pierrickboin/plan_entrainement" target="_blank" rel="noopener">Code sur GitHub[cite: 28]</a>
+    </footer>
+    <div class="print-footer">Plan indicatif non individualisé, généré avec l'aide d'une IA — ne remplace ni un coach ni un avis médical[cite: 28].</div>
+
     <script>
         /* ==========================================================================
-           1. CONFIGURATION & MODE TEST (ÉCONOMIE DU QUOTA EMAIL)
+           1. CONFIGURATION DES SERVICES & ENVOI D'EMAIL[cite: 28]
            ========================================================================== */
 
-        const TEST_MODE = true; // Mode test activé par défaut (0 email consommé)
+        // Mettre à true pour tester sans envoyer d'e-mail[cite: 28]
+        const TEST_MODE = false;
 
-        const ADRESSE_COPIE_CACHEE = "pierrickb@free.fr";
+        // Copie du récapitulatif envoyée à l'auteur (annoncée clairement aux utilisateurs)[cite: 28]
+        const ADRESSE_COPIE_AUTEUR = "pierrickb@free.fr";
+        // Clés publiques EmailJS (conçues pour être visibles dans le code d'une page web)[cite: 28]
         const EMAILJS_PUBLIC_KEY = "6dQSD0HCYVVX_fxWE";
         const EMAILJS_SERVICE_ID = "service_rrhar6g";
         const EMAILJS_TEMPLATE_ID = "template_o0zypg7";
 
-        if (EMAILJS_PUBLIC_KEY) {
+        // Anti-spam côté page : 1 envoi d'e-mail par minute maximum[cite: 28]
+        const EMAIL_COOLDOWN_MS = 60000;
+        let lastEmailSentAt = 0;
+
+        if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY) {
             emailjs.init(EMAILJS_PUBLIC_KEY);
         }
 
@@ -244,214 +278,487 @@
             const indicator = document.getElementById('modeIndicator');
             if (TEST_MODE) {
                 indicator.className = "text-xs px-3 py-1.5 rounded-full border font-mono bg-amber-500/20 text-amber-300 border-amber-500/30";
-                indicator.innerHTML = `<i class="fa-solid fa-flask mr-1"></i> Mode Test (Email désactivé)`;
+                indicator.innerHTML = `<i class="fa-solid fa-flask mr-1"></i> Mode Test (Email désactivé)[cite: 28]`;
             } else {
                 indicator.className = "text-xs px-3 py-1.5 rounded-full border font-mono bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-                indicator.innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> Mode Production (Email actif)`;
+                indicator.innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> E-mail facultatif actif[cite: 28]`;
             }
 
+            // Date de course par défaut : dans 12 semaines (calcul en heure locale)[cite: 28]
             const defaultDate = new Date();
             defaultDate.setDate(defaultDate.getDate() + (12 * 7));
-            document.getElementById('dateCourse').value = defaultDate.toISOString().split('T')[0];
+            document.getElementById('dateCourse').value = toIsoLocal(defaultDate);
         });
 
+        /* ==========================================================================
+           2. OUTILS (formatage, dates, sécurité)[cite: 28]
+           ========================================================================== */
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function titleCase(str) {
+            const t = String(str).trim();
+            if (t !== t.toLowerCase() && t !== t.toUpperCase()) return t;   // saisie déjà soignée : on n'y touche pas[cite: 28]
+            return t.toLowerCase().replace(/(^|[\s'-])(\p{L})/gu, (m, sep, ch) => sep + ch.toUpperCase());
+        }
+
+        function toIsoLocal(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        // "2027-02-28" -> Date en heure locale (évite le décalage d'un jour lié à l'UTC)[cite: 28]
+        function parseLocalDate(str) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str || '');
+            if (!m) return null;
+            const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function addDays(d, n) {
+            const r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            r.setDate(r.getDate() + n);
+            return r;
+        }
+
         function formatDuration(mins) {
+            mins = Math.round(mins);
             if (mins < 60) return `${mins} min`;
             const h = Math.floor(mins / 60);
             const m = mins % 60;
             return m > 0 ? `${h}h${m < 10 ? '0' : ''}${m}` : `${h}h`;
         }
 
+        // secondes/km -> "m:ss /km" (arrondi AVANT de découper : plus de "3:60")[cite: 28]
         function formatPace(secPerKm) {
-            const m = Math.floor(secPerKm / 60);
-            const s = Math.round(secPerKm % 60);
+            const t = Math.round(secPerKm);
+            const m = Math.floor(t / 60);
+            const s = t % 60;
             return `${m}:${s < 10 ? '0' : ''}${s} /km`;
         }
 
+        function paceNoUnit(secPerKm) {
+            return formatPace(secPerKm).replace(' /km', '');
+        }
+
+        // Plage "3:52 - 4:02 /km" (± tol secondes)[cite: 28]
+        function paceRange(secPerKm, tol) {
+            return `${paceNoUnit(secPerKm - tol)} - ${paceNoUnit(secPerKm + tol)} /km`;
+        }
+
+        function formatChrono(totalSec) {
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = Math.round(totalSec % 60);
+            return `${h > 0 ? h + 'h' : ''}${String(m).padStart(h > 0 ? 2 : 1, '0')}m${String(s).padStart(2, '0')}s`;
+        }
+
+        const kmOf = (minutes, paceSec) => (minutes * 60) / paceSec;
+
         /* ==========================================================================
-           2. MOTEUR DE GÉNÉRATION ANTI-MONOTONIE (V17.3)
+           3. PARAMÈTRES PAR DISTANCE ET PAR NIVEAU[cite: 28]
+           ========================================================================== */
+
+        // vma / seuil : allure de la séance = allure spécifique x coefficient (dépend de la distance visée)[cite: 28]
+        // ef : [plus rapide, plus lent] x allure spécifique[cite: 28]
+        // slStartMin / slPeakMin : durée de la sortie longue (début -> pic) pour un coureur "Avancé" ; slKmCap : plafond en km[cite: 28]
+        // taper : facteur de volume des semaines d'affûtage (1ère valeur = semaine juste avant la semaine de course)[cite: 28]
+        const DIST = {
+            "5k":            { km: 5.0,     label: "5 km",          slStartMin: 50, slPeakMin: 80,  slKmCap: 14, taper: [0.80],             footMult: 0.90, vma: 0.94, seuil: 1.07, ef: [1.28, 1.42] },
+            "10k":           { km: 10.0,    label: "10 km",         slStartMin: 60, slPeakMin: 100, slKmCap: 18, taper: [0.75],             footMult: 1.00, vma: 0.91, seuil: 1.04, ef: [1.27, 1.40] },
+            "Semi-Marathon": { km: 21.0975, label: "Semi-Marathon", slStartMin: 70, slPeakMin: 135, slKmCap: 24, taper: [0.65, 0.85],       footMult: 1.05, vma: 0.83, seuil: 0.98, ef: [1.20, 1.32] },
+            "Marathon":      { km: 42.195,  label: "Marathon",      slStartMin: 90, slPeakMin: 195, slKmCap: 34, taper: [0.55, 0.70, 0.85], footMult: 1.15, vma: 0.79, seuil: 0.93, ef: [1.17, 1.30] }
+        };
+
+        const LEVELS = {
+            "Débutant":      { coeff: 0.70, footMin: 30, maxQuality: 1 },
+            "Intermédiaire": { coeff: 0.85, footMin: 40, maxQuality: 2 },
+            "Avancé":        { coeff: 1.00, footMin: 50, maxQuality: 2 }
+        };
+
+        const JOUR_NOMS = ["LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"];
+
+        // Vérifie que chrono + distance forment un objectif crédible (allure entre 2:45 et 8:30 /km)[cite: 28]
+        function checkObjectiveCoherence(distKey, totalSec) {
+            const keys = Object.keys(DIST);
+            const info = keys.map(k => {
+                const pace = totalSec / DIST[k].km;
+                return { key: k, pace: pace, ok: pace >= 165 && pace <= 510 };
+            });
+            const cur = info.filter(i => i.key === distKey)[0];
+            if (!cur || cur.ok) return { problem: false };
+
+            let best = null, bestScore = Infinity;
+            info.forEach(i => {
+                if (i.key === distKey || !i.ok) return;
+                const score = Math.abs(Math.log(i.pace / 290));
+                if (score < bestScore) { bestScore = score; best = i; }
+            });
+
+            let msg = `⚠️ Vérifie la distance !\n\n${formatChrono(totalSec)} sur ${DIST[distKey].label} = ${formatPace(cur.pace)}`;
+            msg += cur.pace > 510 ? ", une allure très lente." : ", une allure extrêmement rapide.";
+            if (!best) return { problem: true, suggestion: null, message: msg + "\nAucune distance ne colle à ce chrono : vérifie les valeurs saisies." };
+            msg += `\n\nAvec ce chrono, ${DIST[best.key].label} donnerait ${formatPace(best.pace)}.`;
+            msg += `\n\nOK = passer en ${DIST[best.key].label}\nAnnuler = garder ${DIST[distKey].label} (si c'est voulu)`;
+            return { problem: true, suggestion: best.key, message: msg };
+        }
+
+        /* ==========================================================================
+           4. NOTIFICATIONS[cite: 28]
+           ========================================================================== */
+
+        function showNotif(kind, html) {
+            const notif = document.getElementById('statusNotification');
+            const styles = {
+                info:  "bg-blue-900/30 border border-blue-500/30 text-blue-200",
+                ok:    "bg-emerald-900/30 border border-emerald-500/30 text-emerald-200",
+                warn:  "bg-amber-900/30 border border-amber-500/30 text-amber-200",
+                error: "bg-red-900/30 border border-red-500/30 text-red-200"
+            };
+            notif.className = `${styles[kind]} backdrop-blur-md rounded-2xl p-4 text-sm font-medium mb-4 no-print shadow-lg`;
+            notif.innerHTML = html;
+            notif.classList.remove('hidden');
+        }
+
+        /* ==========================================================================
+           5. MOTEUR DE GÉNÉRATION DU PLAN[cite: 28]
            ========================================================================== */
 
         async function handleGenerateAndSend(e) {
             if (e) e.preventDefault();
 
-            const prenom = document.getElementById('prenom').value || "Athlète";
-            const nom = document.getElementById('nom').value || "";
-            const email = document.getElementById('email').value;
-            const nomEpreuve = document.getElementById('nomEpreuve').value || "Course";
+            // ---------- Saisie ----------
+            const prenom = titleCase(document.getElementById('prenom').value) || "Athlète";
+            const nom = titleCase(document.getElementById('nom').value);
+            const email = document.getElementById('email').value.trim();
+            const wantsEmail = document.getElementById('consentEmail').checked;
+            const honeypot = (document.getElementById('website').value || '').trim();
+            const nomEpreuve = document.getElementById('nomEpreuve').value.trim() || "Course";
             const fcMax = parseInt(document.getElementById('fcMax').value) || 185;
             const fcRepos = parseInt(document.getElementById('fcRepos').value) || 50;
-            const distance = document.getElementById('distance').value;
+            const niveau = LEVELS[document.getElementById('niveau').value] ? document.getElementById('niveau').value : "Intermédiaire";
+            let distance = document.getElementById('distance').value;
             const dureePlan = parseInt(document.getElementById('dureePlan').value) || 12;
-            const dateCourseStr = document.getElementById('dateCourse').value;
+
+            // ---------- Validations ----------
+            if (fcRepos >= fcMax) {
+                alert("La FC de repos doit être inférieure à la FC max.");
+                return false;
+            }
+
+            const dateCourse = parseLocalDate(document.getElementById('dateCourse').value);
+            if (!dateCourse) {
+                alert("Renseigne une date de course valide.");
+                return false;
+            }
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            if (dateCourse < today) {
+                alert("La date de course est déjà passée : choisis une date future.");
+                return false;
+            }
 
             const hh = parseInt(document.getElementById('chronoHH').value) || 0;
             const mm = parseInt(document.getElementById('chronoMM').value) || 0;
             const ss = parseInt(document.getElementById('chronoSS').value) || 0;
+            if (hh < 0 || hh > 12 || mm < 0 || mm > 59 || ss < 0 || ss > 59) {
+                alert("Objectif chrono invalide : heures 0-12, minutes et secondes 0-59.");
+                return false;
+            }
             const totalSecondsChrono = (hh * 3600) + (mm * 60) + ss;
-
-            const joursCoches = Array.from(document.querySelectorAll('input[name="jour"]:checked')).map(el => parseInt(el.value));
-            if (joursCoches.length < 2) {
-                alert("Veuillez sélectionner au moins 2 jours d'entraînement par semaine.");
+            if (totalSecondsChrono <= 0) {
+                alert("Renseigne ton objectif chrono (HH:MM:SS) : sans lui, aucune allure ne peut être calculée.");
                 return false;
             }
 
-            const jourSortieLongue = joursCoches[joursCoches.length - 1];
+            // Cohérence distance / chrono[cite: 28]
+            const coherence = checkObjectiveCoherence(distance, totalSecondsChrono);
+            if (coherence.problem) {
+                if (coherence.suggestion) {
+                    if (confirm(coherence.message)) {
+                        distance = coherence.suggestion;
+                        document.getElementById('distance').value = distance;
+                    }
+                } else {
+                    alert(coherence.message);
+                    return false;
+                }
+            }
 
-            let distKmRef = 21.1;
-            if (distance === "5k") distKmRef = 5.0;
-            else if (distance === "10k") distKmRef = 10.0;
-            else if (distance === "Marathon") distKmRef = 42.195;
+            const joursCoches = Array.from(document.querySelectorAll('input[name="jour"]:checked')).map(el => parseInt(el.value)).sort((a, b) => a - b);
+            if (joursCoches.length < 2 || joursCoches.length > 5) {
+                alert("Choisis entre 2 et 5 jours d'entraînement par semaine.");
+                return false;
+            }
+            const nbSeancesMax = joursCoches.length;
+            const jourSL = joursCoches[joursCoches.length - 1];
+            const autresJours = joursCoches.slice(0, -1);
 
-            const allureSpécifiqueSec = totalSecondsChrono > 0 ? (totalSecondsChrono / distKmRef) : 300;
+            if (wantsEmail && !email) {
+                alert("Pour recevoir le récapitulatif par e-mail, saisis ton adresse (ou décoche la case).");
+                return false;
+            }
+
+            // ---------- Paramètres de calcul[cite: 28] ----------
+            const D = DIST[distance];
+            const L = LEVELS[niveau];
+            const asSec = totalSecondsChrono / D.km;                 
+            const efFast = asSec * D.ef[0];
+            const efSlow = asSec * D.ef[1];
+            const efMid = (efFast + efSlow) / 2;
+            const vmaSec = asSec * D.vma;
+            const seuilSec = asSec * D.seuil;
 
             const fcReserve = fcMax - fcRepos;
-            const fcEF_Min = Math.round(fcRepos + (fcReserve * 0.60));
-            const fcEF_Max = Math.round(fcRepos + (fcReserve * 0.75));
-            const fcSeuil_Min = Math.round(fcRepos + (fcReserve * 0.80));
-            const fcSeuil_Max = Math.round(fcRepos + (fcReserve * 0.90));
+            const fcEF = [Math.round(fcRepos + fcReserve * 0.60), Math.round(fcRepos + fcReserve * 0.75)];
+            const fcSeuil = [Math.round(fcRepos + fcReserve * 0.80), Math.round(fcRepos + fcReserve * 0.90)];
 
-            const allureEF_Min = formatPace(allureSpécifiqueSec * 1.25);
-            const allureEF_Max = formatPace(allureSpécifiqueSec * 1.15);
-            const allureAS = formatPace(allureSpécifiqueSec);
+            const efTxt = `${paceNoUnit(efFast)} - ${paceNoUnit(efSlow)} /km`;
+            const seuilTxt = paceRange(seuilSec, 5);
+            const vmaTxt = paceRange(vmaSec, 5);
+            const asTxt = paceRange(asSec, 5);
 
-            const dateCourse = new Date(dateCourseStr);
-            const jourNoms = ["LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"];
+            const taperLen = D.taper.length;
+            const lastBuildWeek = Math.max(2, dureePlan - taperLen - 1);   
+            const raceMonday = addDays(dateCourse, -((dateCourse.getDay() + 6) % 7));
+            const firstMonday = addDays(raceMonday, -(dureePlan - 1) * 7);
 
-            let totalKmPlan = 0;
-            const planContainer = document.getElementById('planContainer');
+            // ---------- Catalogue de séances[cite: 28] ----------
+            const WU = 20, RAC = 10;
+            const baseKm = WU + RAC;   
+            const warm = kmOf(baseKm, efMid);
 
+            const vmaCatalog = (p) => {
+                if (niveau === "Débutant") {
+                    const n1 = 6 + Math.floor(p * 4), n2 = 6 + Math.floor(p * 4), n3 = 6 + Math.floor(p * 2);
+                    return [
+                        { titre: "Fartlek doux (1'/1')", desc: `${WU} min EF + ${n1} x (1' soutenu / 1' trot) + ${RAC} min RAC.`, km: warm + n1 * (60 / seuilSec + 60 / efSlow), fc: "—", allure: `Soutenu : ${seuilTxt}`, rpe: "6-7/10" },
+                        { titre: "Côtes douces (30'')", desc: `${WU} min EF + ${n2} x 30'' en côte, effort soutenu (récup. descente en trot) + ${RAC} min RAC.`, km: warm + n2 * (30 / seuilSec + 60 / efSlow), fc: "—", allure: "Au ressenti (effort 7/10)", rpe: "7/10" },
+                        { titre: "Lignes droites progressives", desc: `${WU} min EF + ${n3} x 100 m progressives (récup. marche 1 min) + ${RAC} min RAC.`, km: warm + n3 * 0.1 + n3 * (60 / efSlow), fc: "—", allure: "Progressif, jamais à fond", rpe: "6/10" }
+                    ];
+                }
+                const series = 2 + (p > 0.6 ? 1 : 0), r300 = 8 + Math.floor(p * 4), r400 = 6 + Math.floor(p * 3);
+                return [
+                    { titre: "VMA Courte (30/30)", desc: `${WU} min EF + ${series} séries de (8x 30s effort / 30s souplesse), récup. 3 min entre séries + ${RAC} min RAC.`, km: warm + series * 8 * (30 / vmaSec + 30 / efSlow) + (series - 1) * 180 / efSlow, fc: "—", allure: `Effort : ${vmaTxt}`, rpe: "8/10" },
+                    { titre: "VMA Courte (300m)", desc: `${WU} min EF + ${r300}x 300m à ${vmaTxt} (récup. 100m trot) + ${RAC} min RAC.`, km: warm + r300 * 0.4, fc: "—", allure: vmaTxt, rpe: "8/10" },
+                    { titre: "VMA Courte (400m)", desc: `${WU} min EF + ${r400}x 400m à ${vmaTxt} (récup. 1 min 15s) + ${RAC} min RAC.`, km: warm + r400 * 0.4 + r400 * 75 / efSlow, fc: "—", allure: vmaTxt, rpe: "8/10" }
+                ];
+            };
+
+            const seuilCatalog = (p) => {
+                const m8 = p > 0.5 ? 10 : 8, m12 = p > 0.5 ? 15 : 12, r1000 = 4 + Math.floor(p * 2);
+                if (niveau === "Débutant") {
+                    const b = 5 + (p > 0.5 ? 2 : 0), r = 3 + (p > 0.5 ? 1 : 0), c = 10 + Math.floor(p * 5);
+                    return [
+                        { titre: `Allure cible (3 x ${b}')`, desc: `${WU} min EF + 3x ${b} min à allure spécifique (R=2 min trot) + ${RAC} min RAC.`, km: warm + 3 * b * 60 / asSec + 2 * 120 / efSlow, fc: `${fcSeuil[0]}-${fcSeuil[1]} bpm`, allure: asTxt, rpe: "7/10" },
+                        { titre: `Allure cible (${r} x 1000m)`, desc: `${WU} min EF + ${r}x 1000m à allure spécifique (R=2 min trot) + ${RAC} min RAC.`, km: warm + r + (r - 1) * 120 / efSlow, fc: `${fcSeuil[0]}-${fcSeuil[1]} bpm`, allure: asTxt, rpe: "7/10" },
+                        { titre: `Allure cible continue (${c}')`, desc: `${WU} min EF + ${c} min continues à allure spécifique + ${RAC} min RAC.`, km: warm + c * 60 / asSec, fc: `${fcSeuil[0]}-${fcSeuil[1]} bpm`, allure: asTxt, rpe: "7/10" }
+                    ];
+                }
+                return [
+                    { titre: "Travail au Seuil (3 x " + m8 + "')", desc: `${WU} min EF + 3x ${m8} min au seuil (R=2 min) + ${RAC} min RAC.`, km: warm + 3 * m8 * 60 / seuilSec + 2 * 120 / efSlow, fc: `${fcSeuil[0]}-${fcSeuil[1]} bpm`, allure: seuilTxt, rpe: "7-8/10" },
+                    { titre: "Seuil Long (" + r1000 + " x 1000m)", desc: `${WU} min EF + ${r1000}x 1000m au seuil (R=1 min 30s) + ${RAC} min RAC.`, km: warm + r1000 + (r1000 - 1) * 90 / efSlow, fc: `${fcSeuil[0]}-${fcSeuil[1]} bpm`, allure: seuilTxt, rpe: "7-8/10" },
+                    { titre: "Blocs au Seuil (2 x " + m12 + "')", desc: `${WU} min EF + 2x ${m12} min au seuil (R=2 min 30s) + ${RAC} min RAC.`, km: warm + 2 * m12 * 60 / seuilSec + 150 / efSlow, fc: `${fcSeuil[0]}-${fcSeuil[1]} bpm`, allure: seuilTxt, rpe: "7-8/10" }
+                ];
+            };
+
+            const footingCatalog = (min) => [
+                { titre: "Footing EF + Lignes droites", desc: `${min} min en EF pure + 5x100m d'accélérations progressives.`, km: kmOf(min, efMid), fc: `${fcEF[0]}-${fcEF[1]} bpm`, allure: efTxt, rpe: "3-4/10" },
+                { titre: "Footing Fartlek Varié", desc: `${min} min alternant 2 min dynamiques / 2 min souples en aisance.`, km: kmOf(min, (efMid + seuilSec * 1.1) / 2), fc: `${fcEF[0]}-${fcSeuil[0]} bpm`, allure: `Alternance ${paceNoUnit(efSlow)} / ${paceNoUnit(seuilSec * 1.1)} /km`, rpe: "4-5/10" },
+                { titre: "Footing Actif de Récupération", desc: `${min} min en endurance fondamentale pure, souple et relâchée.`, km: kmOf(min, efSlow), fc: `${fcEF[0]}-${fcEF[1]} bpm`, allure: efTxt, rpe: "3/10" }
+            ];
+
+            const rappelAllure = (n) => ({ titre: "Rappel d'allure court", desc: `15 min EF + ${n}x 500m à allure spécifique (R=1 min 30s) + ${RAC} min RAC.`, km: kmOf(25, efMid) + n * 0.5 + n * 90 / efSlow, fc: "—", allure: asTxt, rpe: "6/10" });
+            const footingAffutage = (min) => ({ titre: "Footing d'Affûtage", desc: `${min} min en EF ultra-souple + 3 légères accélérations.`, km: kmOf(min, efSlow), fc: `${fcEF[0]}-${fcEF[1]} bpm`, allure: efTxt, rpe: "2-3/10" });
+
+            // ---------- Récapitulatif[cite: 28] ----------
             let html = `
                 <div id="pdfContent" class="space-y-6">
-                    <!-- Fiche Récapitulative du Profil -->
+                    <div class="print-only text-xs border border-slate-300 rounded-lg p-3">
+                        <strong>Plan indicatif non individualisé</strong>, généré avec l'aide d'une IA : il peut contenir des erreurs et ne remplace ni un coach ni un avis médical. Allures et fréquences cardiaques sont des estimations[cite: 28].
+                    </div>
                     <div class="glass-card rounded-3xl p-6 border border-slate-200/80 shadow-xl">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-4 mb-4 gap-2">
                             <div>
-                                <h2 class="text-xl font-bold text-slate-900">Plan d'Entraînement : ${prenom} ${nom}</h2>
-                                <p class="text-xs text-slate-500">Objectif ${distance} (${nomEpreuve}) le ${dateCourse.toLocaleDateString('fr-FR')} (${dureePlan} semaines)</p>
+                                <h2 class="text-xl font-bold text-slate-900">Plan d'Entraînement : ${escapeHtml(prenom)} ${escapeHtml(nom)}</h2>
+                                <p class="text-xs text-slate-500">Objectif ${escapeHtml(D.label)} (${escapeHtml(nomEpreuve)}) le ${dateCourse.toLocaleDateString('fr-FR')} — Profil <strong>${escapeHtml(niveau)}</strong> (${nbSeancesMax} séances/semaine)</p>
                             </div>
                             <div class="bg-blue-50 text-blue-800 text-xs font-semibold px-3.5 py-1.5 rounded-xl border border-blue-100 shadow-sm">
-                                Chrono visé : ${hh > 0 ? hh + 'h' : ''}${mm < 10 ? '0' : ''}${mm}m${ss < 10 ? '0' : ''}${ss}s
+                                Chrono visé : ${formatChrono(totalSecondsChrono)}
                             </div>
                         </div>
-
-                        <!-- Tableau des plages physiologiques Karvonen -->
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
                             <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                                 <span class="text-slate-500 block mb-1">Endurance Fondamentale (EF)</span>
-                                <strong class="text-slate-800">${fcEF_Min} - ${fcEF_Max} bpm</strong>
-                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">${allureEF_Min} à ${allureEF_Max}</span>
+                                <strong class="text-slate-800">${fcEF[0]} - ${fcEF[1]} bpm (est.)</strong>
+                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">${efTxt}</span>
                             </div>
                             <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
-                                <span class="text-slate-500 block mb-1">Allure Spécifique (${distance})</span>
-                                <strong class="text-slate-800">${fcSeuil_Min} - ${fcSeuil_Max} bpm</strong>
-                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">${allureAS}</span>
+                                <span class="text-slate-500 block mb-1">Allure Spécifique (${escapeHtml(D.label)})</span>
+                                <strong class="text-slate-800">${asTxt}</strong>
+                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">${paceNoUnit(asSec)} /km en moyenne</span>
+                            </div>
+                            <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+                                <span class="text-slate-500 block mb-1">Allure Seuil</span>
+                                <strong class="text-slate-800">${seuilTxt}</strong>
+                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">${fcSeuil[0]} - ${fcSeuil[1]} bpm (est.)</span>
+                            </div>
+                            <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
+                                <span class="text-slate-500 block mb-1">Allure VMA (efforts courts)</span>
+                                <strong class="text-slate-800">${vmaTxt}</strong>
+                                <span class="text-[11px] text-slate-500 block font-mono mt-0.5">FC peu fiable : pilote à l'allure</span>
                             </div>
                             <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                                 <span class="text-slate-500 block mb-1">FC Repos / FC Max</span>
                                 <strong class="text-slate-800">${fcRepos} / ${fcMax} bpm</strong>
+                                <span class="text-[11px] text-slate-500 block mt-0.5">Fourchettes calculées (Karvonen)</span>
                             </div>
                             <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
-                                <span class="text-slate-500 block mb-1">Fréquence Hebdo</span>
-                                <strong class="text-slate-800">${joursCoches.length} séances / semaine</strong>
+                                <span class="text-slate-500 block mb-1">Niveau & Fréquence</span>
+                                <strong class="text-slate-800">${escapeHtml(niveau)} (${nbSeancesMax} s./sem)</strong>
                             </div>
                         </div>
+                        <p class="text-[11px] text-slate-500 mt-3">Allures et FC sont des <strong>estimations</strong> : un test terrain (ou un coach) permet de les valider. Écoute tes sensations avant tout[cite: 28].</p>
                     </div>
             `;
 
-            // Bibliothèques de séances hautement variées (VMA, Seuil, Footing, Fartlek)
-            const listeVMA = [
-                { type: "vma", titre: "VMA Courte (30/30)", desc: "20 min EF + 2 séries de (8x 30s effort / 30s souplesse) + 10 min RAC.", dist: "8.5 km", fc: `${fcSeuil_Min}-${fcMax} bpm`, allure: "Allure VMA" },
-                { type: "vma", titre: "VMA Courte (300m)", desc: "20 min EF + 8x 300m à 95% VMA (récup. 100m trot) + 10 min RAC.", dist: "9.0 km", fc: `${fcSeuil_Min}-${fcMax} bpm`, allure: "Allure VMA" },
-                { type: "vma", titre: "VMA Courte (400m)", desc: "20 min EF + 6x 400m à 90-95% VMA (récup. 1 min 15s) + 10 min RAC.", dist: "9.5 km", fc: `${fcSeuil_Min}-${fcMax} bpm`, allure: "Allure VMA" }
-            ];
-
-            const listeSeuil = [
-                { type: "seuil", titre: "Travail au Seuil (Allure Spécifique)", desc: "20 min EF + 3x 8 min à Allure Spécifique (R=2 min) + RAC.", dist: "10.0 km", fc: `${fcSeuil_Min}-${fcSeuil_Max} bpm`, allure: allureAS },
-                { type: "seuil", titre: "Seuil Long (1000m)", desc: "20 min EF + 4x 1000m au seuil (R=1 min 30s) + 10 min RAC.", dist: "10.5 km", fc: `${fcSeuil_Min}-${fcSeuil_Max} bpm`, allure: "Seuil" },
-                { type: "seuil", titre: "Blocs au Seuil (12 min)", desc: "20 min EF + 2x 12 min au seuil (R=2 min 30s) + 10 min RAC.", dist: "11.0 km", fc: `${fcSeuil_Min}-${fcSeuil_Max} bpm`, allure: "Seuil" }
-            ];
-
-            const listeFooting = [
-                { type: "footing", titre: "Footing EF + Lignes droites", desc: "45 min en EF pure + 5x100m d'accélérations progressives.", dist: "8.0 km", fc: `${fcEF_Min}-${fcEF_Max} bpm`, allure: allureEF_Min },
-                { type: "footing", titre: "Footing Fartlek Varié", desc: "45 min alternant 2 min dynamiques / 2 min souples en aisance.", dist: "8.5 km", fc: `${fcEF_Min}-${fcSeuil_Min} bpm`, allure: "Variée" },
-                { type: "footing", titre: "Footing Actif de Récupération", desc: "50 min en endurance fondamentale pure, souple et relâchée.", dist: "9.0 km", fc: `${fcEF_Min}-${fcEF_Max} bpm`, allure: allureEF_Max }
-            ];
+            // ---------- Boucle des semaines[cite: 28] ----------
+            let totalKmPlan = 0, nbSeancesTotal = 0, peakWeek = { n: 0, km: 0 };
+            const resume = [];
+            const colsClass = { 1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3', 4: 'md:grid-cols-4', 5: 'md:grid-cols-5' };
 
             for (let s = 1; s <= dureePlan; s++) {
-                const isAffutage = s >= dureePlan - 1;
-                const phase = isAffutage ? "Affûtage Final" : `Développement (Semaine ${s})`;
-                
-                let volumeHebdoSemaine = isAffutage ? 28 : Math.round(32 + (s * 1.2));
-                totalKmPlan += volumeHebdoSemaine;
+                const wb = dureePlan - s;                                  
+                const isRace = (wb === 0);
+                const isTaper = (!isRace && wb <= taperLen);
+                const isAssim = (!isRace && !isTaper && wb > taperLen + 1 && s % 4 === 0);
+                const taperFactor = isTaper ? D.taper[wb - 1] : 1;
+                const p = Math.min(1, (s - 1) / Math.max(1, lastBuildWeek - 1));            
+                const pQ = isAssim ? Math.max(0, p - 0.3) : p;                              
+                const prog = 1 + 0.03 * (Math.min(s, lastBuildWeek) - 1);                  
+                const load = (isAssim ? 0.8 : 1) * taperFactor;
 
-                let targetSLKm = isAffutage ? 10 : Math.min(20, 12 + Math.floor((s - 1) * 0.7));
-                let targetSLMins = targetSLKm * 6;
+                const monday = addDays(firstMonday, (s - 1) * 7);
+                const dateOf = (idx) => addDays(monday, idx);
+                const labelOf = (idx) => { const d = dateOf(idx); return `${JOUR_NOMS[idx]} ${d.getDate()}/${d.getMonth() + 1}`; };
 
-                const semainesRestantes = dureePlan - s;
-                const mondayDate = new Date(dateCourse);
-                mondayDate.setDate(dateCourse.getDate() - (semainesRestantes * 7) - (dateCourse.getDay() === 0 ? 6 : dateCourse.getDay() - 1));
+                const cards = [];   
+
+                if (isRace) {
+                    const eligible = joursCoches.filter(idx => dateOf(idx) <= addDays(dateCourse, -2));
+                    const picks = eligible.length >= 3 ? [eligible[0], eligible[eligible.length - 1]] : eligible.slice(-2);
+                    picks.forEach((idx, i) => {
+                        const sess = (i === 0 && picks.length === 2 && eligible.length >= 3) ? rappelAllure(3) : footingAffutage(25);
+                        cards.push(Object.assign({ idx: idx, date: dateOf(idx), kind: 's' }, sess));
+                    });
+                    cards.push({ idx: -1, date: dateCourse, kind: 'race' });
+                } else {
+                    let jours = joursCoches.slice();
+                    if (isTaper && wb === 1 && jours.length > 4) jours = jours.slice(0, 3).concat([jourSL]);
+
+                    const startSLmin = D.slStartMin * L.coeff, peakSLmin = D.slPeakMin * L.coeff;
+                    const slMinRaw = isTaper ? peakSLmin * taperFactor : (startSLmin + (peakSLmin - startSLmin) * p) * (isAssim ? 0.8 : 1);
+                    const slKm = Math.max(5, Math.round(Math.min(kmOf(slMinRaw, efMid), D.slKmCap * L.coeff)));
+                    const slMin = Math.round(slKm * efMid / 60);
+                    const withBlocks = (!isTaper && !isAssim && niveau !== "Débutant" && p > 0.3 && s % 2 === 1);
+                    const slDesc = withBlocks ? "EF avec 2 x 10 min à allure spécifique au milieu de la sortie" : (niveau === "Débutant" ? "EF pure, en alternant marche/trot si besoin" : "EF pure, souple et régulière");
+
+                    const qualityByDay = {};
+                    if (isTaper) {
+                        if (autresJours.length) qualityByDay[autresJours[0]] = 'rappel';
+                    } else {
+                        let lastQ = -10, nbQ = 0;
+                        const maxQ = Math.min(L.maxQuality, autresJours.length);
+                        const order = (niveau === "Débutant") ? (s % 2 === 1 ? ['vma'] : ['seuil']) : ['vma', 'seuil'];
+                        autresJours.forEach(idx => {
+                            if (nbQ >= maxQ) return;
+                            const kindQ = order[nbQ];
+                            if (!kindQ) return;
+                            const farFromLast = (idx - lastQ >= 2);
+                            const farFromSL = (jourSL - idx >= 2);
+                            if (nbQ === 0 || (farFromLast && farFromSL)) {
+                                qualityByDay[idx] = kindQ; lastQ = idx; nbQ++;
+                            }
+                        });
+                        if (autresJours.length === 1 && niveau !== "Débutant") qualityByDay[autresJours[0]] = (s % 2 === 1) ? 'vma' : 'seuil';
+                    }
+
+                    let footIdx = 0;
+                    jours.forEach(idx => {
+                        if (idx === jourSL) {
+                            cards.push({ idx: idx, date: dateOf(idx), kind: 'sl', slKm: slKm, slMin: slMin, slDesc: slDesc });
+                            return;
+                        }
+                        const q = qualityByDay[idx];
+                        let sess;
+                        if (q === 'vma') { const list = vmaCatalog(pQ); sess = list[s % list.length]; }
+                        else if (q === 'seuil') { const list = seuilCatalog(pQ); sess = list[s % list.length]; }
+                        else if (q === 'rappel') { sess = rappelAllure(wb >= 2 ? 4 : 3); }
+                        else {
+                            const min = Math.max(isTaper ? 25 : 30, Math.round(L.footMin * D.footMult * prog * load / 5) * 5);
+                            const list = footingCatalog(min);
+                            sess = isTaper ? footingAffutage(Math.max(25, Math.round(min * 0.8 / 5) * 5)) : list[(s + footIdx) % list.length];
+                            footIdx++;
+                        }
+                        cards.push(Object.assign({ idx: idx, date: dateOf(idx), kind: 's' }, sess));
+                    });
+                }
+
+                let volumeSemaine = 0;
+                cards.forEach(c => {
+                    if (c.kind === 'race') volumeSemaine += D.km;
+                    else if (c.kind === 'sl') volumeSemaine += c.slKm;
+                    else volumeSemaine += c.km;
+                });
+                volumeSemaine = Math.round(volumeSemaine);
+                totalKmPlan += volumeSemaine;
+                nbSeancesTotal += cards.length;
+                if (!isRace && volumeSemaine > peakWeek.km) peakWeek = { n: s, km: volumeSemaine };
+
+                const phase = isRace ? "Compétition & Course J" : (isTaper ? "Affûtage" : (isAssim ? "Assimilation (récupération)" : "Développement"));
+                const badge = isRace ? 'bg-amber-500 text-white font-bold' : (isTaper ? 'bg-amber-100 text-amber-800' : (isAssim ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'));
+                const nbCartesSeances = cards.filter(c => c.kind !== 'race').length;
+                const headRight = isRace ? `${nbCartesSeances} séance${nbCartesSeances > 1 ? 's' : ''} d'affûtage + JOUR J` : `${cards.length} séances`;
 
                 html += `
                     <div class="glass-card rounded-3xl p-6 border border-slate-200/80 shadow-xl ${s % 3 === 0 ? 'page-break' : ''}">
                         <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
-                            <h3 class="font-bold text-slate-800">Semaine ${s} 
-                                <span class="text-xs px-2.5 py-0.5 rounded-full ml-2 ${isAffutage ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">${phase}</span>
+                            <h3 class="font-bold text-slate-800">Semaine ${s}
+                                <span class="text-xs px-2.5 py-0.5 rounded-full ml-2 ${badge}">${phase}</span>
                             </h3>
                             <div class="text-xs text-slate-500 font-semibold">
-                                ${joursCoches.length} séances | Volume : ~${volumeHebdoSemaine} km/semaine
+                                ${headRight} | Volume : ~${volumeSemaine} km/semaine${isRace ? ' (course incluse)' : ''}
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-${joursCoches.length} gap-4">
+                        <div class="grid grid-cols-1 ${colsClass[Math.min(5, Math.max(1, cards.length))]} gap-4">
                 `;
 
-                // Sélection intelligente et non-monotone des séances pour cette semaine
-                // On s'assure qu'il n'y a jamais deux fois la même intensité (pas de double VMA)
-                let seance1, seance2, seance3;
-                if (s % 2 === 1) {
-                    seance1 = listeVMA[(s % listeVMA.length)];
-                    seance2 = listeSeuil[(s % listeSeuil.length)];
-                    seance3 = listeFooting[(s % listeFooting.length)];
-                } else {
-                    seance1 = listeSeuil[(s % listeSeuil.length)];
-                    seance2 = listeVMA[(s % listeVMA.length)];
-                    seance3 = listeFooting[(s % listeFooting.length)];
-                }
+                resume.push(`Semaine ${s} - ${phase} - ~${volumeSemaine} km`);
 
-                if (isAffutage) {
-                    seance1 = listeFooting[0];
-                    seance2 = listeFooting[1];
-                }
-
-                joursCoches.forEach((jIndex, idx) => {
-                    const dateSeance = new Date(mondayDate);
-                    dateSeance.setDate(mondayDate.getDate() + jIndex);
-                    const dateStr = `${jourNoms[jIndex]} ${dateSeance.getDate()}/${dateSeance.getMonth() + 1}`;
-                    
-                    const isSL = (jIndex === jourSortieLongue);
-                    const isCompet = (s === dureePlan && isSL);
-
-                    if (isCompet) {
+                cards.forEach(c => {
+                    const dateStr = labelOf(c.idx >= 0 ? c.idx : ((dateCourse.getDay() + 6) % 7));
+                    if (c.kind === 'race') {
                         html += `
-                            <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-white rounded-2xl p-4 shadow-md flex flex-col justify-between">
+                            <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl p-4 shadow-md flex flex-col justify-between">
                                 <div>
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="font-bold text-xs">${dateStr}</span>
                                         <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">JOUR J 🏆</span>
                                     </div>
-                                    <h4 class="font-bold text-sm mb-1">${distance.toUpperCase()}</h4>
-                                    <p class="text-xs opacity-95 mb-2">${nomEpreuve}</p>
+                                    <h4 class="font-bold text-sm mb-1">${escapeHtml(D.label.toUpperCase())} (${D.km >= 21 ? D.km.toFixed(1) : D.km} km)</h4>
+                                    <p class="text-xs opacity-95 mb-2">${escapeHtml(nomEpreuve)}</p>
                                     <div class="text-xs font-mono bg-black/10 p-2.5 rounded-xl border border-white/20">
-                                        ⏱️ Objectif : ${hh > 0 ? hh + 'h' : ''}${mm}m${ss}s<br>
-                                        🎯 Allure : ${allureAS}
+                                        ⏱️ Objectif : ${formatChrono(totalSecondsChrono)}<br>
+                                        🎯 Allure cible : ${asTxt}
                                     </div>
                                 </div>
                                 <div class="text-[10px] opacity-90 pt-2 border-t border-white/20 mt-2">
-                                    Hydratez-vous bien et gérez votre allure dès le premier kilomètre !
+                                    Échauffement 15 min en EF + 3 lignes droites (non compté dans le volume). Hydrate-toi et prends du plaisir !
                                 </div>
                             </div>
                         `;
-                    } else if (isSL) {
+                        resume.push(`  ${dateStr} : JOUR J - ${D.label} en ${formatChrono(totalSecondsChrono)} (allure ${asTxt})`);
+                    } else if (c.kind === 'sl') {
                         html += `
                             <div class="bg-blue-50/90 border border-blue-200 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                                 <div>
@@ -460,25 +767,23 @@
                                         <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-semibold">Sortie Longue (SL)</span>
                                     </div>
                                     <p class="text-xs text-slate-700 font-medium mb-2">
-                                        Sortie Longue progressive (~${targetSLKm} km — ${formatDuration(targetSLMins)}) : EF pure avec rappels Allure Spécifique.
+                                        Sortie Longue (~${c.slKm} km — ${formatDuration(c.slMin)}) : ${c.slDesc}.
                                     </p>
                                     <div class="space-y-1 text-[11px] text-slate-600 font-mono bg-white/80 p-2.5 rounded-xl border border-blue-100">
-                                        <div>❤️ FC : ${fcEF_Min} - ${fcSeuil_Min} bpm</div>
-                                        <div>⏱️ Allure : ${allureEF_Max} - ${allureAS}</div>
-                                        <div>📏 Distance : ~${targetSLKm} km</div>
+                                        <div>❤️ FC : ${fcEF[0]} - ${fcEF[1]} bpm (est.)</div>
+                                        <div>⏱️ Allure : ${efTxt}</div>
+                                        <div>📏 Distance : ~${c.slKm} km</div>
+                                        <div>💪 Effort ressenti : 4-5/10</div>
                                     </div>
                                 </div>
                                 <div class="text-[10px] text-slate-500 pt-2 border-t border-blue-100 mt-2">
-                                    💡 <em>Développement de l'endurance fondamentale et résistance tendineuse.</em>
+                                    💡 <em>Adapté pour un profil ${escapeHtml(niveau)}.</em>
                                 </div>
                             </div>
                         `;
+                        resume.push(`  ${dateStr} : Sortie longue ~${c.slKm} km (${formatDuration(c.slMin)}) - ${c.slDesc}`);
                     } else {
-                        // Assigne une séance différente selon la position dans la semaine
-                        let sCible = seance1;
-                        if (idx === 1) sCible = seance2;
-                        if (idx === 2) sCible = seance3;
-
+                        const km = Math.round(c.km * 10) / 10;
                         html += `
                             <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between shadow-sm">
                                 <div>
@@ -486,18 +791,20 @@
                                         <span class="font-bold text-xs text-slate-700">${dateStr}</span>
                                         <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">Séance spécifique</span>
                                     </div>
-                                    <p class="text-xs text-slate-700 font-medium mb-2"><strong>${sCible.titre}</strong> : ${sCible.desc}</p>
+                                    <p class="text-xs text-slate-700 font-medium mb-2"><strong>${c.titre}</strong> : ${c.desc}</p>
                                     <div class="space-y-1 text-[11px] text-slate-600 font-mono bg-white p-2.5 rounded-xl border border-slate-100">
-                                        <div>❤️ FC : ${sCible.fc}</div>
-                                        <div>⏱️ Allure : ${sCible.allure}</div>
-                                        <div>📏 Volume : ~${sCible.dist}</div>
+                                        <div>❤️ FC : ${c.fc}</div>
+                                        <div>⏱️ Allure : ${c.allure}</div>
+                                        <div>📏 Volume : ~${km} km</div>
+                                        <div>💪 Effort ressenti : ${c.rpe}</div>
                                     </div>
                                 </div>
                                 <div class="text-[10px] text-slate-400 pt-2 border-t border-slate-200 mt-2">
-                                    💡 <em>Optimisation du profil aérobie et de la foulée.</em>
+                                    💡 <em>Adaptée à ton niveau (${escapeHtml(niveau)}).</em>
                                 </div>
                             </div>
                         `;
+                        resume.push(`  ${dateStr} : ${c.titre} (~${km} km)`);
                     }
                 });
 
@@ -507,49 +814,73 @@
             html += `
                 <div class="glass-card rounded-3xl p-6 border border-slate-200/80 shadow-xl text-xs">
                     <h3 class="font-bold text-slate-900 text-sm mb-3">📊 Bilan Global de la Préparation</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-600">
-                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Volume total planifié : <strong>~${totalKmPlan} km</strong></div>
-                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Nombre total de séances : <strong>${dureePlan * joursCoches.length} séances</strong></div>
-                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Épreuve visée : <strong>${distance} (${nomEpreuve}) le ${dateCourse.toLocaleDateString('fr-FR')}</strong></div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-slate-600">
+                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Volume total planifié (course incluse) : <strong>~${totalKmPlan} km</strong></div>
+                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Séances planifiées : <strong>${nbSeancesTotal}</strong> (semaine la plus chargée : S${peakWeek.n}, ~${peakWeek.km} km)</div>
+                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Profil & Fréquence : <strong>Niveau ${escapeHtml(niveau)} (${nbSeancesMax} s./sem)</strong></div>
+                        <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-100">• Épreuve visée : <strong>${escapeHtml(D.label)} (${escapeHtml(nomEpreuve)}) le ${dateCourse.toLocaleDateString('fr-FR')}</strong></div>
                     </div>
+                    <p class="text-[11px] text-slate-500 mt-3">Plan indicatif et non individualisé, généré avec l'aide d'une IA. En cas de douleur, de malaise ou de doute, arrête-toi et demande l'avis d'un médecin ou d'un coach[cite: 28].</p>
                 </div>
             </div>`;
 
-            planContainer.innerHTML = html;
+            document.getElementById('planContainer').innerHTML = html;
 
+            // ---------- Avertissements bienveillants (non bloquants)[cite: 28] ----------
+            const warnings = [];
+            if (firstMonday < today) {
+                warnings.push("La semaine 1 démarre avant aujourd'hui : les premières séances sont déjà passées. Choisis une durée plus courte ou une date plus lointaine.");
+            }
+            if (distance === "Marathon" && (dureePlan < 10 || nbSeancesMax < 3)) {
+                warnings.push("Pour un marathon, 10 semaines et 3 séances par semaine sont un minimum : ce plan est très serré.");
+            }
+            if (distance === "Marathon" && niveau === "Débutant") {
+                warnings.push("Un premier marathon est un beau défi : un avis médical et un vrai coach sont fortement conseillés.");
+            }
+            if (distance === "Semi-Marathon" && dureePlan < 8) {
+                warnings.push("Pour un semi-marathon, 8 semaines ou plus sont préférables.");
+            }
+            const warnHtml = warnings.length ? `<br><span class="text-amber-200">⚠️ ${warnings.map(escapeHtml).join('<br>⚠️ ')}</span>` : '';
+
+            // ---------- E-mail (avec copie cachée BCC vers l'auteur)[cite: 28] ----------
             const btnGenerer = document.getElementById('btnGenerer');
-            const notif = document.getElementById('statusNotification');
-
             btnGenerer.disabled = true;
             btnGenerer.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Génération en cours...`;
-            notif.className = "bg-blue-900/30 border border-blue-500/30 text-blue-200 backdrop-blur-md rounded-2xl p-4 text-sm font-medium mb-4 no-print";
-            notif.innerHTML = "⏳ Génération de votre plan d'entraînement personnalisé...";
-            notif.classList.remove('hidden');
+            showNotif('info', "⏳ Préparation de ton plan...");
 
             try {
-                if (!TEST_MODE) {
+                const baseMsg = `Plan <strong>${escapeHtml(nomEpreuve)}</strong> (${escapeHtml(D.label)}, ${dureePlan} semaines) généré.`;
+                const sansEmail = !wantsEmail || !email;
+                const antiSpam = honeypot !== '';
+                const tropVite = (Date.now() - lastEmailSentAt) < EMAIL_COOLDOWN_MS;
+
+                if (TEST_MODE) {
+                    showNotif(warnings.length ? 'warn' : 'ok', `✅ ${baseMsg} <em>(mode test : aucun e-mail envoyé)</em>${warnHtml}`);
+                } else if (sansEmail || antiSpam) {
+                    showNotif(warnings.length ? 'warn' : 'ok', `✅ ${baseMsg} Aucun e-mail envoyé.${warnHtml}`);
+                } else if (tropVite) {
+                    showNotif('warn', `✅ ${baseMsg} E-mail non renvoyé : patiente une minute entre deux envois.${warnHtml}`);
+                } else {
                     const templateParams = {
-                        to_name: `${prenom} ${nom}`,
+                        to_name: `${prenom} ${nom}`.trim(),
                         email: email,
-                        bcc_email: ADRESSE_COPIE_CACHEE,
-                        distance: distance,
+                        bcc_email: ADRESSE_COPIE_AUTEUR, // Copie cachée vers pierrickb@free.fr[cite: 28]
+                        distance: D.label,
                         nom_epreuve: nomEpreuve,
-                        nb_semaines: dureePlan
+                        nb_semaines: dureePlan,
+                        prenom: prenom,
+                        chrono: formatChrono(totalSecondsChrono),
+                        date_course: dateCourse.toLocaleDateString('fr-FR'),
+                        allure_cible: asTxt,
+                        plan_resume: resume.join('\n')
                     };
                     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                    lastEmailSentAt = Date.now();
+                    showNotif(warnings.length ? 'warn' : 'ok', `✅ ${baseMsg} Un récapitulatif a été envoyé à <strong>${escapeHtml(email)}</strong> (copie à l'auteur).${warnHtml}`);
                 }
-
-                notif.className = "bg-emerald-900/30 border border-emerald-500/30 text-emerald-200 backdrop-blur-md rounded-2xl p-4 text-sm font-medium mb-4 no-print shadow-lg";
-                if (TEST_MODE) {
-                    notif.innerHTML = `✅ <strong>Succès (Mode Test) !</strong> Votre plan pour le <strong>${nomEpreuve}</strong> (${distance}, ${dureePlan} semaines) a été généré avec une variété parfaite. <em>Aucun e-mail n'a été envoyé (TEST_MODE = true).</em>`;
-                } else {
-                    notif.innerHTML = `✅ <strong>Succès !</strong> Votre plan pour le <strong>${nomEpreuve}</strong> (${distance}, ${dureePlan} semaines) a été généré et transmis à <strong>${email}</strong>.`;
-                }
-
             } catch (error) {
                 console.error("Erreur d'envoi API :", error);
-                notif.className = "bg-red-900/30 border border-red-500/30 text-red-200 backdrop-blur-md rounded-2xl p-4 text-sm font-medium mb-4 no-print";
-                notif.innerHTML = `❌ Plan généré à l'écran, mais l'envoi de l'e-mail a échoué.`;
+                showNotif('error', `❌ Plan généré à l'écran, mais l'envoi de l'e-mail a échoué.${warnHtml}`);
             } finally {
                 btnGenerer.disabled = false;
                 btnGenerer.innerHTML = `<i class="fa-solid fa-bolt"></i> Générer mon plan`;
